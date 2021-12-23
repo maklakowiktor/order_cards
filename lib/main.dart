@@ -10,6 +10,7 @@ void main() {
 int getRandomNum(int min, int max) => min + Random().nextInt(max - min);
 
 class MyApp extends StatelessWidget {
+  ScrollController orderScrollConstroller = ScrollController();
   List<OrderCardWidget> orderList(int count) {
     List<OrderCardWidget> list = [];
     for (int i = 0; i <= count; i++) {
@@ -27,12 +28,23 @@ class MyApp extends StatelessWidget {
         appBar: AppBar(
           title: Text('Demo'),
         ),
-        body: SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: orderList(5),
+        body: ScrollConfiguration(
+          behavior: ScrollConfiguration.of(context).copyWith(
+            dragDevices: {
+              PointerDeviceKind.touch,
+              PointerDeviceKind.mouse,
+            },
+          ),
+          child: SingleChildScrollView(
+            controller: orderScrollConstroller,
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              // children: orderList(5),
+              children: List.generate(
+                  10, (index) => OrderCardWidget(key: Key(index.toString()))),
+            ),
           ),
         ),
         // body:
@@ -125,7 +137,8 @@ class MyWidget extends StatelessWidget {
 }
 
 class OrderCardWidget extends StatelessWidget {
-  int productCount = getRandomNum(1, 10);
+  ScrollController productScrollController = ScrollController();
+  int productCount = getRandomNum(5, 15);
 
   OrderCardWidget({Key? key}) : super(key: key);
 
@@ -143,7 +156,7 @@ class OrderCardWidget extends StatelessWidget {
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
             ),
             subtitle: const Text(
-              "Деструктив: Lego",
+              "Описание: Lego",
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
             trailing: Icon(Icons.arrow_forward_ios),
@@ -162,16 +175,26 @@ class OrderCardWidget extends StatelessWidget {
         // maxHeight: MediaQuery.of(context).size.height * 0.5,
       ),
       padding: const EdgeInsets.all(20),
+      margin: const EdgeInsets.all(10),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           // Title,
           Text('Order #1000'),
           Flexible(
-            child: ListView.builder(
-              itemCount: productCount,
-              itemBuilder: (context, index) => card(index),
-              shrinkWrap: true,
+            child: ScrollConfiguration(
+              behavior: ScrollConfiguration.of(context).copyWith(
+                dragDevices: {
+                  PointerDeviceKind.touch,
+                  PointerDeviceKind.mouse,
+                },
+              ),
+              child: ListView.builder(
+                controller: productScrollController,
+                itemCount: productCount,
+                itemBuilder: (context, index) => card(index),
+                shrinkWrap: true,
+              ),
             ),
           ),
           ElevatedButton(
